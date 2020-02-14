@@ -1,13 +1,20 @@
 Package: oasisad
-Title: What the Package Does (One Line, Title Case)
+Title: OASISAD, an improved automated white matter hypyter-intensity classficiation tool
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Tianyu",
+           family = "Ding",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+           email = "dty0606@gmail.com")
+Description: The package includes following functions: 
+    1. Preprocess raw input strutural neuroimages including registration, skull registration and ect by fslr function. 
+    2. OASISAD basic models.
+    3. Probabilty map refined functions. 
+    4. Segmentation evaulation metric includes F1-score, accuracy, ROC and etc.
+Depends: R(>=3.1.0)
+Imports: 
+    fslr,
+    ggplot2
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
