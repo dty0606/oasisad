@@ -1,4 +1,4 @@
-#' refine voxel's probability of being white matter hypeintensity by neighbor information
+#' Refine voxel's probability of being white matter hypeintensity by neighbor information
 #'
 #' @param x a dataframe includes a voxel's probability of being white matter and its nearest neighor voxels' vetorized indice.
 #' @param seg.voxel a vector includes segmention information, for example, segmention by FSL.
@@ -22,7 +22,7 @@ neighbor <- function(x,
   gmpve_nei <- na.omit(gm.pve[x[-1]])
   csfpve_nei <- na.omit(csf.pve[x[-1]])
 
-
+  ## refined parameter calculation
   if(x[1] == 1){
     if(is.null(wm_label)){
         label = 3

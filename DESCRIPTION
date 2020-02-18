@@ -13,6 +13,7 @@ Description: The package includes following functions:
     4. Segmentation evaulation metric includes F1-score, accuracy, ROC and etc.
 Depends: R(>=3.1.0)
 Imports: 
+    neurobase,
     fslr,
     ggplot2
 License: GPL-2
