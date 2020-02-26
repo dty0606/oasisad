@@ -1,4 +1,5 @@
 #data
+setwd()
 library(neurobase)
 
 dir_img <- 'C:/Users/dty/Desktop/oasis/Dana_image/all_20_subjects'
