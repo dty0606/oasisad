@@ -4,14 +4,21 @@
 #' @param t1 Input T1 image
 #' @param t2 Input T2 image
 #' @param pd Input PD image
-#' @param t1mask A boolean indicates whether use T1 as brain mask or not
 #' @param gold_standard gold standard lesion segmentation mask of class
 #' \code{\link{nifti}}
-#' @param brain_mask Input brain_mask, if null, a mask will be obtained by FSL
-#' @param voxel_select A specifed level to remove voxels whose intensity under
-#' @param preproc A boolean indicates whether to call
+#' #' @param preproc A boolean indicates whether to call
 #' \code{\link{oasisad_pre}} function or not
 #' and performs the necessary preprocessing steps for OASIS
+#' @param brain_mask Input brain_mask, if null, a mask will be obtained by FSL
+#' @param img_space An image to register, if NULL, 'flair' image will be used in registration.
+#' @param neighbor A boolean indicates whether will use neighbor refinement function in model step.
+#' If true, either prepare segmentation and white matter mask to input in this function or
+#' this functoin will generate masks by \code{\link{fslr}}
+#' @param wm_mask Input of white matter mask
+#' @param seg_mask Input of segmentation mask
+#' @param dir A user defined output path for fslr segmentation
+#' @param eroder A boolean indicates whether should use \code{\link{fslerode}}
+#' @param voxel_select A specifed level to remove voxels whose intensity under
 #' @param normalize A boolean indicates whether to
 #' perform z-score normalization of the image over the brain mask,
 #' should be \code{TRUE} unless you train model
@@ -26,27 +33,28 @@
 #' the preprocessed images should be returned
 #' @param cores numeric indicating the number of cores to be used
 #' @param verbose A boolean indicated whether output messages
-#' @param eroder A boolean indicates whether should use \code{\link{fslerode}}
-#' @param dir A user defined output
 
 oasisad_df <- function(flair, ##flair volume of class nifti
                         t1, ##t1 volume of class nifti
                         t2 = NULL, ##t2 volume of class nifti
                         pd = NULL, ##pd volume of class nifti
-                        gold_standard = NULL, ##gold standard mask of class nifti
-                        brain_mask = NULL, ##brain mask of class nifti
-                        t1mask = FALSE, ## if create brain mask, use T1 or FLAIR
-                        voxel_select = NULL, ##a specifed level to remove voxels whose intensity under
+                        gold_standard = NULL, ##gold standard mask of class snifti
                         preproc = TRUE, ##option to preprocess the data
+                        brain_mask = NULL, ##brain mask of class nifti
+                        img_space = FALSE, ## input of image for registration
+                        neighbor = TRUE,
+                        wm_mask = NULL,
+                        seg_mask = NULL,
+                        dir = NULL,
+                        eroder = TRUE,
+                        voxel_select = NULL, ##a specifed level to remove voxels whose intensity under
                         normalize = TRUE, ##option to normalize
                         image_sm = TRUE, ## option to smooth image
                         slices = NULL, #slice vector
                         orientation = c("axial", "coronal", "sagittal"),
                         return_preproc = FALSE,
                         cores = 1,
-                        verbose = TRUE,
-                        eroder = TRUE,
-                        dir = NULL
+                        verbose = TRUE
 )
 {
 
@@ -69,33 +77,44 @@ oasisad_df <- function(flair, ##flair volume of class nifti
     if (verbose) {
       message("OASISAD Preprocessing")
     }
+
+    segmentation = FALSE
+    if(neighbor){
+      if(is.null(wm_mask) & is.null(seg_mask)){
+        if (verbose) {
+          message("No white matter and segmentation masks input, using fslr for creating masks")
+        }
+        segmentation = TRUE
+      }
+
+    }
     ## the image preproceesing
     preprocess <- oasisad_pre(flair = flair,
                                 t1 = t1,
                                 t2 = t2,
                                 pd = pd,
-                                cores = cores,
+                                img_space = img_space,
                                 brain_mask = brain_mask,
+                                segmentation = segmentation,
                                 verbose = verbose,
+                                cores = cores,
                                 dir = dir)
     oasisad_study <- preprocess[c("flair","t1", "t2", "pd")]
     brain_mask <- preprocess$brain_mask
   } else {
     ## no preprocessing
-    oasis_study <- list(flair = flair, t1 = t1, t2 = t2, pd = pd)
+    oasisad_study <- list(flair = flair, t1 = t1, t2 = t2, pd = pd)
   }
   # REMOVE NULL
-  nulls <- sapply(oasis_study, is.null)
+  nulls <- sapply(oasisad_study, is.null)
   oasisad_study <- oasisad_study[!nulls]
 
   ###############################
   # Making brain mask if one not needed
   ###############################
 
-
   ##erode mask if needed
-  brain_mask <- correct_image_dim(brain_mask)
-  if(erode){
+  if(eroder){
     if (verbose) {
       message("Eroding Brain Mask")
     }
@@ -127,31 +146,30 @@ oasisad_df <- function(flair, ##flair volume of class nifti
   # smoothing images
   if (image_sm == TRUE) {
 
-  if (verbose) {
-    message("Smoothing Images: width = 10")
-  }
+    if (verbose) {
+      message("Smoothing Images: width = 10")
+    }
 
-  # smooth the images using fslsmooth from the fslr package
-  smooth_10 <- mclapply(oasisad_study, fslsmooth,
-                        sigma = 10,
-                        mask = brain_mask,
-                        retimg = TRUE,
-                        smooth_mask = TRUE,
-                        mc.cores = cores)
-  oasisad_study <- c(oasisad_study, smooth_10)
+    # smooth the images using fslsmooth from the fslr package
+    smooth_10 <- mclapply(oasisad_study, fslsmooth,
+                          sigma = 10,
+                          mask = brain_mask,
+                          retimg = TRUE,
+                          smooth_mask = TRUE,
+                          mc.cores = cores)
 
-  if (verbose) {
-    message("Smoothing Images: width = 20")
-  }
-  smooth_20 <- mclapply(oasisad_study, fslsmooth,
-                       sigma = 20,
-                       mask = brain_mask,
-                       retimg = TRUE,
-                       smooth_mask = TRUE,
-                       mc.cores = cores)
-  oasisad_study <- c(oasisad_study, smooth_20)
+    if (verbose) {
+      message("Smoothing Images: width = 20")
+    }
+    smooth_20 <- mclapply(oasisad_study, fslsmooth,
+                         sigma = 20,
+                         mask = brain_mask,
+                         retimg = TRUE,
+                         smooth_mask = TRUE,
+                         mc.cores = cores)
+    oasisad_study <- c(oasisad_study, smooth_10, smooth_20)
 
-  rm(list = c("smooth_10","smooth_20"))
+    rm(list = c("smooth_10","smooth_20"))
 
   }
 
@@ -162,7 +180,7 @@ oasisad_df <- function(flair, ##flair volume of class nifti
   #######################################
   # Make data.frame
   #######################################
-  oasisad_data<- lapply(oasisad_study, c)
+  oasisad_data <- lapply(oasisad_study, c)
   oasisad_data <- as.data.frame(oasisad_data)
   rownames(oasisad_data) = NULL
 
@@ -173,7 +191,7 @@ oasisad_df <- function(flair, ##flair volume of class nifti
   indx <- which(indx == 1, arr.ind = TRUE)
   orientations <- c("axial", "coronal", "sagittal")
   colnames(indx) <- orientations
-  oasiad_data <- cbind(oasisad_data, indx)
+  oasisad_data <- cbind(oasisad_data, indx, c(1:length(brain_mask)))
 
   ######################
   # If Keep Voxel Selection
@@ -190,14 +208,27 @@ oasisad_df <- function(flair, ##flair volume of class nifti
     orientation <- match.arg(orientation)
     oasisad_data <- oasisad_data[oasisad_data[, orientation] %in% slices, ]
   }
-  cn <- colnames(oasisad_data)
-  cn <- setdiff(cn, orientations)
-  oasisad_data = oasisad_data[, cn]
 
   ######################
-  # Return oasisad dataframe within brain mask
+  # output voxels within indices
   ######################
-
   oasisad_data <- oasisad_data[which(brain_mask != 0), ]
+
+  ######################
+  # create a list to save dataframe, wm_mask, seg_mask information
+  ######################
+  L <- list(data = NULL, wm_mask = NULL, seg_mask = NULL)
+  L$data <- oasisad_data
+
+  if(neighbor){
+    if(is.null(wm_mask)){
+      wm_mask <- readnii(paste0(dir,'_pve_2.nii.gz'))
+    }
+    if(is.null(seg_mask)){
+      seg_mask <- readnii(paste0(dir,'_seg.nii.gz'))
+    }
+    L$wm_mask <- wm_mask
+    L$seg_mask <- seg_mask
+  }
   return(oasisad_data)
 }

@@ -4,10 +4,8 @@
 #' @param x A dataframe includes a voxel's probability of being white matter
 #' and its nearest neighor voxels' vetorized indice.
 #' @param neighor A boolean whether using neighor function to correct probability map
-#' @param seg_path File path of segmentation mask segmentation tool such as FSL
-#' @param wm_path File path of white matter pve from segmentation tool such as FSL
-#' @param gm_path File path of grey matter pve segmentation tool such as FSL
-#' @param csf_path File path of csf pve segmentation tool such as FSL
+#' @param seg File path of segmentation mask segmentation tool such as FSL
+#' @param wm File path of white matter pve from segmentation tool such as FSL
 #' @param wm_label A value indicates white matter label in input seg_voxel argument.
 #' If null, it is 3, by FSL.
 #' @param re_value A value used in neighbor calculation function to

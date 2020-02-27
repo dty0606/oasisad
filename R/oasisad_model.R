@@ -1,29 +1,36 @@
-#' @title OASISAD image preprocessing function
-#' @description  MRI image data preprocessing with multiple inputs
-#' @param df A dataframe from oasisad_df
+#' @title OASISAD model
+#' @description  The input should be OASISAD data list,
+#' the function will train the model with training and vailidaion data,
+#' then use the testing data to evaluatoin performance
+#' @param train_df A data list from oasisad_df function which inlcudes training samples informatin.
+#' If neighbor refinement function will be used, the list should include segmentation and
+#' white matter probability map for each training subject
+#' @param test_df A data list from oasisad_df function which inlcudes testing samples informatin.
+#' If neighbor refinement function will be used, the list should include segmentation and
+#' white matter probability map for each training subject
+#' @param valid_df A data list from oasisad_df function which inlcudes validation samples informatin.
+#' If neighbor refinement function will be used, the list should include segmentation and
+#' white matter probability map for each training subject
 #' @param M1 A boolean indicates using full model 'M1' or reduced model 'M2',
 #' default is reduced model
-#' @param t1 Input T1 image
-#' @param t2 Input T2 image
-#' @param pd Input PD image
-#' @param t1mask A boolean indicates whether use T1 as brain mask or not
-#' @param brain_mask Input brain_mask, if null, a mask will be obtained by FSL
-#' @param dir A user defined output
-#' @param cores A number indicates how many cores used mclapply
+#' @param refine A boolean incicates whether use OASISAD refinement function,
+#' to refine probability map from logistic regression model
+#' @param neighbor A boolean incicates whether use neighbor refinement function,
+#' to refine probability map from logistic regression model. If true, segmentation information and
+#' white matter probability of brain is needed
+#' @param wm_label White matter label in segmentation input
+#' @param re_value A numeric value will be used in neighor refinement functoin to
+#' refine a voxel's probability of being White matter hyperintensity
 
-oasis_ad <- function(train_df,
-                      test_df,
-                      valid_df = NULL,
-                      threshold = NULL,
-                      M1 = FALSE,
-                      refine = FALSE,
-                      brain_mask = NULL,
-                      neighbor = FALSE,
-                      seg = NULL,
-                      wm = NULL,
-                      wm_label = NULL,
-                      re_value = NULL,
-                      indx = NULL) {
+oasisad_model <- function(train_df,
+                          test_df,
+                          valid_df = NULL,
+                          threshold = NULL,
+                          M1 = FALSE,
+                          refine = FALSE,
+                          neighbor = FALSE,
+                          wm_label = NULL,
+                          re_value = NULL) {
 
     if(M1){
       M1 <- glm(GoldStandard ~ FLAIR*FLAIR_10
