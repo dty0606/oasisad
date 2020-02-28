@@ -79,6 +79,7 @@ for(i in 1:length(train_id)){
                                  verbose = TRUE
   )
 }
+save(train_list, file = file.path('df/train_df.rdda'))
 
 # testing sample dataframe list
 test_list <- list()
@@ -106,6 +107,7 @@ for(i in 1:length(test_id)){
                                verbose = TRUE
   )
 }
+save(test_list, file = file.path('df/test_df.rdda'))
 
 # validation sample dataframe list. Use of optimal threshold later.
 valid_list <- list()
@@ -133,6 +135,6 @@ for(i in 1:length(valid_id)){
                                verbose = TRUE
   )
 }
-
+save(valid_list, file = file.path('df/valid_df.rdda'))
 
 
