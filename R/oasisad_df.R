@@ -105,6 +105,7 @@ oasisad_df <- function(flair, ##flair volume of class nifti
     ## no preprocessing
     oasisad_study <- list(flair = flair, t1 = t1, t2 = t2, pd = pd)
   }
+
   # REMOVE NULL
   nulls <- sapply(oasisad_study, is.null)
   oasisad_study <- oasisad_study[!nulls]

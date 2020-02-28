@@ -21,14 +21,14 @@ train_raw$gs <- list(readnii('0097RS_flair_tracing.nii.gz'),
                      readnii('0120LB_flair_tracing.nii'))
 
 valid_raw <- list()
-valid_raw$flair <- readnii('0177CR_flair.nii')
-valid_raw$t1 <- readnii('0177CR_hires+acpc.nii.gz')
-valid_raw$gs <- readnii('0177CR_flair_tracing.nii')
+valid_raw$flair <- list(readnii('0177CR_flair.nii'))
+valid_raw$t1 <- list(readnii('0177CR_hires+acpc.nii.gz'))
+valid_raw$gs <- list(readnii('0177CR_flair_tracing.nii'))
 
 test_raw <- list()
-test_raw$flair <- readnii('0064KW_flair.nii')
-test_raw$t1 <- readnii('0064KW_hires+acpc.nii')
-test_raw$gs <- readnii('0064KW_flair_tracing.nii.gz')
+test_raw$flair <- list(readnii('0064KW_flair.nii'))
+test_raw$t1 <- list(readnii('0064KW_hires+acpc.nii'))
+test_raw$gs <- list(('0064KW_flair_tracing.nii.gz'))
 
 #oasis dataframe
 flair = train_raw$flair[[1]] ##flair volume of class nifti
@@ -37,8 +37,13 @@ t2 = NULL ##t2 volume of class nifti
 pd = NULL ##pd volume of class nifti
 gold_standard = train_raw$gs[[1]] ##gold standard mask of class nifti
 preproc = TRUE ##option to preprocess the data
-img_space = NULL
 brain_mask = NULL ##brain mask of class nifti
+img_space = NULL
+neighbor = TRUE
+wm_mask = NULL
+seg_mask = NULL
+dir = 'fslout/train1'
+eroder = TRUE
 voxel_select = NULL ##a specifed level to remove voxels whose intensity under
 normalize = TRUE ##option to normalize
 image_sm = TRUE ## option to smooth image
@@ -47,8 +52,6 @@ orientation = c("axial", "coronal", "sagittal")
 return_preproc = FALSE
 cores = 1
 verbose = TRUE
-eroder = TRUE
-dir = 'fslout/train1'
 
 # training sample dataframe list
 train_list <- list()
@@ -59,9 +62,13 @@ for(i in 1:length(train_id)){
                                  pd = NULL, ##pd volume of class nifti
                                  gold_standard = train_raw$gs[[i]], ##gold standard mask of class nifti
                                  preproc = TRUE, ##option to preprocess the data
-                                 segmentation = TRUE,
                                  brain_mask = NULL, ##brain mask of class nifti
                                  img_space = NULL, ## if create brain mask, use T1 or FLAIR
+                                 neighbor = TRUE,
+                                 wm_mask = NULL,
+                                 seg_mask = NULL,
+                                 dir = paste0('fslout/train',i),
+                                 eroder = TRUE,
                                  voxel_select = NULL, ##a specifed level to remove voxels whose intensity under
                                  normalize = TRUE, ##option to normalize
                                  image_sm = TRUE, ## option to smooth image
@@ -69,9 +76,7 @@ for(i in 1:length(train_id)){
                                  orientation = c("axial", "coronal", "sagittal"),
                                  return_preproc = FALSE,
                                  cores = 1,
-                                 verbose = TRUE,
-                                 eroder = TRUE,
-                                 dir = paste0('fslout/train',i)
+                                 verbose = TRUE
   )
 }
 
@@ -79,25 +84,53 @@ for(i in 1:length(train_id)){
 test_list <- list()
 for(i in 1:length(test_id)){
   test_list[[i]] <- oasisad_df(flair = test_raw$flair[[i]], ##flair volume of class nifti
-                                t1 = test_raw$t1[[i]], ##t1 volume of class nifti
-                                t2 = NULL, ##t2 volume of class nifti
-                                pd = NULL, ##pd volume of class nifti
-                                gold_standard = test_raw$gs[[i]], ##gold standard mask of class nifti
-                                preproc = TRUE, ##option to preprocess the data
-                                segmentation = TRUE,
-                                neighbor = TRUE,
-                                brain_mask = NULL, ##brain mask of class nifti
-                                img_space = NULL, ## if create brain mask, use T1 or FLAIR
-                                voxel_select = NULL, ##a specifed level to remove voxels whose intensity under
-                                normalize = TRUE, ##option to normalize
-                                image_sm = TRUE, ## option to smooth image
-                                slices = NULL, #slice vector
-                                orientation = c("axial", "coronal", "sagittal"),
-                                return_preproc = FALSE,
-                                cores = 1,
-                                verbose = TRUE,
-                                eroder = TRUE,
-                                dir = paste0('fslout/test',i)
+                               t1 = test_raw$t1[[i]], ##t1 volume of class nifti
+                               t2 = NULL, ##t2 volume of class nifti
+                               pd = NULL, ##pd volume of class nifti
+                               gold_standard = test_raw$gs[[i]], ##gold standard mask of class nifti
+                               preproc = TRUE, ##option to preprocess the data
+                               brain_mask = NULL, ##brain mask of class nifti
+                               img_space = NULL, ## if create brain mask, use T1 or FLAIR
+                               neighbor = TRUE,
+                               wm_mask = NULL,
+                               seg_mask = NULL,
+                               dir = paste0('fslout/test',i),
+                               eroder = TRUE,
+                               voxel_select = NULL, ##a specifed level to remove voxels whose intensity under
+                               normalize = TRUE, ##option to normalize
+                               image_sm = TRUE, ## option to smooth image
+                               slices = NULL, #slice vector
+                               orientation = c("axial", "coronal", "sagittal"),
+                               return_preproc = FALSE,
+                               cores = 1,
+                               verbose = TRUE
+  )
+}
+
+# validation sample dataframe list. Use of optimal threshold later.
+valid_list <- list()
+for(i in 1:length(valid_id)){
+  valid_list[[i]] <- oasisad_df(flair = valid_raw$flair[[i]], ##flair volume of class nifti
+                               t1 = valid_raw$t1[[i]], ##t1 volume of class nifti
+                               t2 = NULL, ##t2 volume of class nifti
+                               pd = NULL, ##pd volume of class nifti
+                               gold_standard = valid_raw$gs[[i]], ##gold standard mask of class nifti
+                               preproc = TRUE, ##option to preprocess the data
+                               brain_mask = NULL, ##brain mask of class nifti
+                               img_space = NULL, ## if create brain mask, use T1 or FLAIR
+                               neighbor = TRUE,
+                               wm_mask = NULL,
+                               seg_mask = NULL,
+                               dir = paste0('fslout/valid',i),
+                               eroder = TRUE,
+                               voxel_select = NULL, ##a specifed level to remove voxels whose intensity under
+                               normalize = TRUE, ##option to normalize
+                               image_sm = TRUE, ## option to smooth image
+                               slices = NULL, #slice vector
+                               orientation = c("axial", "coronal", "sagittal"),
+                               return_preproc = FALSE,
+                               cores = 1,
+                               verbose = TRUE
   )
 }
 
