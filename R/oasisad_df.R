@@ -232,5 +232,5 @@ oasisad_df <- function(flair, ##flair volume of class nifti
     L$wm_mask <- wm_mask
     L$seg_mask <- seg_mask
   }
-  return(oasisad_data)
+  return(L)
 }
