@@ -5,6 +5,7 @@
 #' and its nearest neighor voxels' vetorized indice.
 #' @param neighor A boolean whether using neighor function to correct probability map
 #' @param seg File path of segmentation mask segmentation tool such as FSL
+#' Please set non-brain tissue in seg to 0
 #' @param wm File path of white matter pve from segmentation tool such as FSL
 #' @param wm_label A value indicates white matter label in input seg_voxel argument.
 #' If null, it is 3, by FSL.
@@ -25,10 +26,11 @@ oasis_refine <- function(prob_map,
     if(neighbor){
 
       # nearest neighbors indices
-      indx_nei <- neighbor_indx(indx, dim(seg))
+      indx_nei <- sapply_pb(1:nrow(indx), function(i)
+                                            neighbor_indx(unlist(indx[i,]), dim(seg)))
 
-      # find neighbor in brain mask
-      indx_nei_brain <- sapply(1:6,function(i) indx_nei %in% which(brain_mask == 1))
+      # find neighbor in brain mask, seg == 0 is non-brain tissue in FSL
+      indx_nei_brain <- sapply(1:6,function(i) indx_nei[i,] %in% which(seg != 0))
 
       #calculate neighbor function value for each voxel
       if(is.null(wm_label)){
@@ -36,23 +38,23 @@ oasis_refine <- function(prob_map,
       } else {
         label <- wm_label
       }
+
       nei_cal <- sapply_pb(1:length(prob_map), function(i){
         # indice to use
-        indice <- indx_nei[i,]
+        indice <- indx_nei[,i]
         indice <- indice[which(indx_nei_brain[i,])]
-        neighbor_cal(nei_seg = seg[indice],
-                     wm_pve = wm[indice],
+        neighbor_cal(wm_pve = wm[indx[i]],
+                     nei_seg = seg[indice],
+                     nei_wm = wm[indice],
                      label = label,
                      re_value = re_value)
       })
-
       #refine probability map with neighbor information
       prob_map <- prob_map^nei_cal
     }
 
-
     #Gaussian smoothing
-    prob_mask <- brain_mask
+    prob_mask <- niftiarr(seg, 0)
     prob_mask[prob_mask != 0] <- prob_map
     prob_map <- fslsmooth(prob_mask, sigma = 1.25,
                           mask = brain_mask, retimg = TRUE,

@@ -8,7 +8,7 @@ neighbor_indx <- function(x,
   temp1 <- cbind(temp,
                 (temp[,1]-x[1])^2 + (temp[,2]-x[2])^2 + (temp[,3]-x[3])^2)
   #select nearest neighbor
-  temp <- temp[which(temp1[,4]=1),]
+  temp <- temp[which(temp1[,4]==1),]
   #return their vectorized indice
   indx <- temp[,1] + (temp[,2]-1)*dim[1] + (temp[,3]-1)*dim[1]*dim[2]
   return(indx)

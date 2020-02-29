@@ -35,27 +35,27 @@ oasisad_model <- function(train_df,
     #train, val, test data
     for(i in 1:length(train_df)){
       if(i == 1){
-        train <- train_df[[i]]
+        train <- train_df[[i]]$data
       } else {
-        train <- rbind(train, train_df[[i]])
+        train <- rbind(train, train_df[[i]]$data)
       }
     }
     #
     if(!is.null(valid_df)){
       for(i in 1:length(valid_df)){
         if(i == 1){
-          valid <- valid_df[[i]]
+          valid <- valid_df[[i]]$data
         } else {
-          valid <- rbind(valid, valid_df[[i]])
+          valid <- rbind(valid, valid_df[[i]]$data)
         }
       }
     }
 
     for(i in 1:length(test_df)){
       if(i == 1){
-        test <- test_df[[i]]
+        test <- test_df[[i]]$data
       } else {
-        test <- rbind(test, test_df[[i]])
+        test <- rbind(test, test_df[[i]]$data)
       }
     }
     #masks for refinement
@@ -72,9 +72,11 @@ oasisad_model <- function(train_df,
       probs <- predict(model, valid, type = "response")
       if(refine){
         for(i in 1:length(valid_df)){
-          sub <- valid_df[[1]]
-          seg <- readnii()
-
+          sub <- valid_df[[i]]
+          wm_mask <- sub$wm_mask
+          seg_mask <- sub$seg_mask
+          indx <- sub$data$indx
+          indx3d <- sub$data[c("axial", "coronal", "sagittal")]
         }
         probs <- oasis_refine()
       }

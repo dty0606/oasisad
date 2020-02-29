@@ -79,7 +79,7 @@ for(i in 1:length(train_id)){
                                  verbose = TRUE
   )
 }
-save(train_list, file = file.path('df/train_df.rdda'))
+save(train_list, file = file.path('df/train_df.rda'))
 
 # testing sample dataframe list
 test_list <- list()
@@ -107,7 +107,7 @@ for(i in 1:length(test_id)){
                                verbose = TRUE
   )
 }
-save(test_list, file = file.path('df/test_df.rdda'))
+save(test_list, file = file.path('df/test_df.rda'))
 
 # validation sample dataframe list. Use of optimal threshold later.
 valid_list <- list()
@@ -135,7 +135,7 @@ for(i in 1:length(valid_id)){
                                verbose = TRUE
   )
 }
-save(valid_list, file = file.path('df/valid_df.rdda'))
+save(valid_list, file = file.path('df/valid_df.rda'))
 
 # load df
 load('df/train_df.rda')
@@ -151,10 +151,3 @@ refine = TRUE
 neighbor = TRUE
 wm_label = NULL
 re_value = NULL
-
-train_df[[1]]$wm_mask <- readnii('fslout/train1_pve_2.nii.gz')
-train_df$seg_mask <- readnii('fslout/train1_seg.nii.gz')
-train_df$wm_mask <- readnii('fslout/train1_pve_2.nii.gz')
-train_df$wm_mask <- readnii('fslout/train1_pve_2.nii.gz')
-train_df$wm_mask <- readnii('fslout/train1_pve_2.nii.gz')
-train_df$wm_mask <- readnii('fslout/train1_pve_2.nii.gz')
