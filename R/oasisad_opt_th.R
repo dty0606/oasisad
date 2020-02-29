@@ -1,5 +1,5 @@
 ###use training to obtain optimal threshold
-opt_thre <- function(train_sub, cutoff_list, mydata_train,
+opt_thre <- function(M1, ,
                      brain_mask, dir_seg, terry = F){
   # Matrix for keeping DSC for each training subject
   DSC_mat = matrix(NA, nrow = length(train_sub), ncol = length(cutoff_list))

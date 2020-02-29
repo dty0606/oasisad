@@ -10,7 +10,8 @@
 #' white matter probability map for each training subject
 #' @param valid_df A data list from oasisad_df function which inlcudes validation samples informatin.
 #' If neighbor refinement function will be used, the list should include segmentation and
-#' white matter probability map for each training subject
+#' white matter probability map for each training subject. If it is NULL, optimal threshold
+#' algorithm will be used to calculate threshold
 #' @param M1 A boolean indicates using full model 'M1' or reduced model 'M2',
 #' default is reduced model
 #' @param refine A boolean incicates whether use OASISAD refinement function,
@@ -25,31 +26,67 @@
 oasisad_model <- function(train_df,
                           test_df,
                           valid_df = NULL,
-                          threshold = NULL,
                           M1 = FALSE,
                           refine = FALSE,
                           neighbor = FALSE,
                           wm_label = NULL,
                           re_value = NULL) {
 
-    if(M1){
-      M1 <- glm(GoldStandard ~ FLAIR*FLAIR_10
-                + FLAIR*FLAIR_20 + T1*T1_10 + T1*T1_20, family=binomial, data=df)
-    }else{
-      M2 <- glm(GoldStandard ~ FLAIR+T1, family=binomial, data=df)
+    #train, val, test data
+    for(i in 1:length(train_df)){
+      if(i == 1){
+        train <- train_df[[i]]
+      } else {
+        train <- rbind(train, train_df[[i]])
+      }
+    }
+    #
+    if(!is.null(valid_df)){
+      for(i in 1:length(valid_df)){
+        if(i == 1){
+          valid <- valid_df[[i]]
+        } else {
+          valid <- rbind(valid, valid_df[[i]])
+        }
+      }
     }
 
-    if
-    ##idx
-    idx.use = test$idx.use
-    n.obs = nrow(test) # no. of observations in train
-    probs = predict(model, newdata=test, type="response")
-    nei_mat = as.matrix(test[,c("wm.pve", "nei1","nei2","nei3","nei4","nei5","nei6")])
-    test$wm.correct = sapply_pb(1:n.obs, function(i) neighbor(nei_mat[i,],
-                                                              seg.voxel = seg.voxel,
-                                                              wm.pve=wm.pve,
-                                                              gm.pve=gm.pve,
-                                                              csf.pve=csf.pve))
+    for(i in 1:length(test_df)){
+      if(i == 1){
+        test <- test_df[[i]]
+      } else {
+        test <- rbind(test, test_df[[i]])
+      }
+    }
+    #masks for refinement
+
+    if(M1){
+      model <- glm(GoldStandard ~ flair*flair.1
+                + flair*flair.2 + t1*t1.1 + t1*t1.2, family=binomial, data=train)
+    }else{
+      model <- glm(GoldStandard ~ flair+t1, family=binomial, data=train)
+    }
+
+    if(!is.null(valid_df)){
+      # the default cutoff_list is seq(0,1,0.01)
+      probs <- predict(model, valid, type = "response")
+      if(refine){
+        for(i in 1:length(valid_df)){
+          sub <- valid_df[[1]]
+          seg <- readnii()
+
+        }
+        probs <- oasis_refine()
+      }
+      opt_thre <- opt_thre(train_sub,
+                           cutoff_list,
+                           mydata_train,
+                           brain_mask,
+                           dir_seg,
+                           terry = F)
+    }
+
+
     #different probability map
     probsr = probs^test$wm.correct
     probss = smoo(probs,brain_mask,idx.use)

@@ -14,7 +14,6 @@
 #' @return Refined probability map
 
 oasis_refine <- function(prob_map,
-                         brain_mask,
                          neighbor = FALSE,
                          seg = NULL,
                          wm = NULL,
@@ -24,11 +23,9 @@ oasis_refine <- function(prob_map,
                          ){
 
     if(neighbor){
-      # indice of voxels
-      indx <- which(brain_mask == 1)
 
       # nearest neighbors indices
-      indx_nei <- neighbor_indx(indx, dim(brain_mask))
+      indx_nei <- neighbor_indx(indx, dim(seg))
 
       # find neighbor in brain mask
       indx_nei_brain <- sapply(1:6,function(i) indx_nei %in% which(brain_mask == 1))

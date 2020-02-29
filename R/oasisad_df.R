@@ -192,7 +192,8 @@ oasisad_df <- function(flair, ##flair volume of class nifti
   indx <- which(indx == 1, arr.ind = TRUE)
   orientations <- c("axial", "coronal", "sagittal")
   colnames(indx) <- orientations
-  oasisad_data <- cbind(oasisad_data, indx, c(1:length(brain_mask)))
+  oasisad_data <- cbind(oasisad_data, indx)
+  oasisad_data$indx <- c(1:length(brain_mask))
 
   ######################
   # If Keep Voxel Selection

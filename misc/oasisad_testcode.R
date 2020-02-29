@@ -137,4 +137,24 @@ for(i in 1:length(valid_id)){
 }
 save(valid_list, file = file.path('df/valid_df.rdda'))
 
+# load df
+load('df/train_df.rda')
+load('df/valid_df.rda')
+load('df/test_df.rda')
 
+train_df = train_list
+test_df = test_list
+valid_df = valid_list
+threshold = NULL
+M1 = TRUE
+refine = TRUE
+neighbor = TRUE
+wm_label = NULL
+re_value = NULL
+
+train_df[[1]]$wm_mask <- readnii('fslout/train1_pve_2.nii.gz')
+train_df$seg_mask <- readnii('fslout/train1_seg.nii.gz')
+train_df$wm_mask <- readnii('fslout/train1_pve_2.nii.gz')
+train_df$wm_mask <- readnii('fslout/train1_pve_2.nii.gz')
+train_df$wm_mask <- readnii('fslout/train1_pve_2.nii.gz')
+train_df$wm_mask <- readnii('fslout/train1_pve_2.nii.gz')
