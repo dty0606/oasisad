@@ -16,7 +16,7 @@
 #' @return Refined probability map
 #' @export
 #' @importFrom  neurobase niftiarr
-#' @importFrom fslr fsl_smooth
+#' @importFrom fslr fslsmooth
 
 oasis_refine <- function(prob_map,
                          neighbor = FALSE,

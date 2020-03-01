@@ -7,14 +7,14 @@
 #' @param img_space An image to register and use for creating brain mask if needed.
 #' If NULL, 'flair' image will be used in registration.
 #' @param brain_mask Input brain_mask, if null, a mask will be obtained by FSL
-#' @param segmentation A boolean indicates whether using fslr for segmentation
+#' @param segmentation A boolean indicates whether using bias_correct for segmentation
 #' @param dir A user defined output path for fslr segmentation
 #' @param cores A number indicates how many cores used mclapply
 #' @param verbose A boolean indicated whether output messages
 #' @return preprocessed image data
 #' @export
 #' @importFrom parallel mclapply
-#' @importFrom fslr fslbet
+#' @importFrom fslr flirt fast
 #' @importFrom neurobase mask_img datatyper check_nifti
 
 oasisad_pre <- function(flair, #flair volume of class nifti
@@ -54,8 +54,8 @@ oasisad_pre <- function(flair, #flair volume of class nifti
     message("Running Brain Extraction Tool\n")
   }
   if (is.null(brain_mask)) {
-      brain_mask <- fslbet(img_space, remove.neck = TRUE, correct = TRUE, correction = "N4",
-                                  recog = TRUE, retimg = TRUE, verbose = TRUE)
+      brain_mask <- bias_correct(img_space, correction = 'N4', retimg = TRUE,
+                                 verbose = verbose)
   }
 
   #fast segmention by FSL

@@ -12,15 +12,16 @@ Description: The package includes following functions:
     3. Probabilty map refined functions. 
     4. Segmentation evaulation metric includes F1-score, accuracy, ROC and etc.
 Depends: R (>= 3.1.0)
-Imports: 
-    neurobase,
-    fslr,
-    ANTsR,
-    parallel,
-    oasis,
-    stats,
-    oro.nifti
-License: GPL-2
+Imports: ANTsR,    
+         ANTsRCore,
+         neurobase,
+         fslr,
+         oro.nifti, 
+         parallel,
+         oasis,
+         stats,
+         utils
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2

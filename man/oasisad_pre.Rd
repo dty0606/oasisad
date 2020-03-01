@@ -31,7 +31,7 @@ If NULL, 'flair' image will be used in registration.}
 
 \item{brain_mask}{Input brain_mask, if null, a mask will be obtained by FSL}
 
-\item{segmentation}{A boolean indicates whether using fslr for segmentation}
+\item{segmentation}{A boolean indicates whether using bias_correct for segmentation}
 
 \item{dir}{A user defined output path for fslr segmentation}
 

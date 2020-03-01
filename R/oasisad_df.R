@@ -35,7 +35,7 @@
 #' @return OASISAS data structure
 #' @export
 #' @importFrom neurobase check_nifti zscore_img readnii
-#' @import fslr
+#' @importFrom fslr fslsmooth fslerode
 #' @importFrom oasis voxel_selection
 #' @importFrom parallel mclapply
 

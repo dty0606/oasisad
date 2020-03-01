@@ -1,14 +1,32 @@
 #data
-setwd("data")
 library(neurobase)
+library(devtools)
 library(extrantsr)
-library(ANTsR)
-library(fslr)
-library(parallel)
+install_github("dty0606/oasisad")
+library(oasisad)
+
+#load data
+setwd('../data/')
+train_raw <-list(flair = list(), t1 = list(), gs = list())
+valid_raw <-list(flair = list(), t1 = list(), gs = list())
+test_raw <-list(flair = list(), t1 = list(), gs = list())
+
+train_raw$flair[[1]] <- readnii('train1_flair.nii.gz')
+train_raw$t1[[1]] <- readnii('train1_t1.nii.gz')
+train_raw$gs[[1]] <- readnii('train1_gs.nii.gz')
+
+valid_raw$flair[[1]] <- readnii('valid1_flair.nii.gz')
+valid_raw$t1[[1]] <- readnii('valid1_t1.nii.gz')
+valid_raw$gs[[1]] <- readnii('valid1_gs.nii.gz')
+
+test_raw$flair[[1]] <- readnii('test1_flair.nii.gz')
+test_raw$t1[[1]] <- readnii('test1_t1.nii.gz')
+test_raw$gs[[1]] <- readnii('test1_gs.nii.gz')
+
 
 # training sample dataframe list
 train_list <- list()
-for(i in 1:length(train_id)){
+for(i in 1:length(train_raw)){
   train_list[[i]] <- oasisad_df(flair = train_raw$flair[[i]], ##flair volume of class nifti
                                  t1 = train_raw$t1[[i]], ##t1 volume of class nifti
                                  t2 = NULL, ##t2 volume of class nifti
@@ -27,7 +45,7 @@ for(i in 1:length(train_id)){
                                  image_sm = TRUE, ## option to smooth image
                                  slices = NULL, #slice vector
                                  orientation = c("axial", "coronal", "sagittal"),
-                                 return_preproc = FALSE,
+                                 return_pre = FALSE,
                                  cores = 1,
                                  verbose = TRUE
   )
@@ -55,7 +73,7 @@ for(i in 1:length(test_id)){
                                image_sm = TRUE, ## option to smooth image
                                slices = NULL, #slice vector
                                orientation = c("axial", "coronal", "sagittal"),
-                               return_preproc = FALSE,
+                               return_pre = FALSE,
                                cores = 1,
                                verbose = TRUE
   )
@@ -83,7 +101,7 @@ for(i in 1:length(valid_id)){
                                image_sm = TRUE, ## option to smooth image
                                slices = NULL, #slice vector
                                orientation = c("axial", "coronal", "sagittal"),
-                               return_preproc = FALSE,
+                               return_pre = FALSE,
                                cores = 1,
                                verbose = TRUE
   )
