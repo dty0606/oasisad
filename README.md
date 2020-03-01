@@ -1,4 +1,4 @@
-# oasisad
+# OASISAD
 R package for oasisad, a white matter segmentation tool described in [https://www.sciencedirect.com/science/article/pii/S2213158219304978]
 
 Please cite at
