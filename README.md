@@ -1,5 +1,7 @@
 # oasisad
-R package for oasisad, please cite at
+R package for oasisad, a white matter segmentation tool described in [https://www.sciencedirect.com/science/article/pii/S2213158219304978]
+
+please cite at
 
 Ding, T., et al. "An improved algorithm of white matter hyperintensity detection in elderly adults." NeuroImage: Clinical 25 (2020): 102151.
 
