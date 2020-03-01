@@ -33,7 +33,7 @@ test_raw$gs[[1]] <- readnii('test1_gs.nii.gz')
 
 # training sample dataframe list
 train_list <- list()
-for(i in 1:length(train_raw)){
+for(i in 1:length(train_raw$flair)){
   train_list[[i]] <- oasisad_df(flair = train_raw$flair[[i]], ##flair volume of class nifti
                                  t1 = train_raw$t1[[i]], ##t1 volume of class nifti
                                  t2 = NULL, ##t2 volume of class nifti
@@ -57,11 +57,11 @@ for(i in 1:length(train_raw)){
                                  verbose = TRUE
   )
 }
-save(train_list, file = file.path('df/train_df.rda'))
+save(train_list, file = file.path('train_df.rda'))
 
 # testing sample dataframe list
 test_list <- list()
-for(i in 1:length(test_id)){
+for(i in 1:length(test_raw$flair)){
   test_list[[i]] <- oasisad_df(flair = test_raw$flair[[i]], ##flair volume of class nifti
                                t1 = test_raw$t1[[i]], ##t1 volume of class nifti
                                t2 = NULL, ##t2 volume of class nifti
@@ -85,11 +85,11 @@ for(i in 1:length(test_id)){
                                verbose = TRUE
   )
 }
-save(test_list, file = file.path('df/test_df.rda'))
+save(test_list, file = file.path('test_df.rda'))
 
 # validation sample dataframe list. Use of optimal threshold later.
 valid_list <- list()
-for(i in 1:length(valid_id)){
+for(i in 1:length(valid_raw$flair)){
   valid_list[[i]] <- oasisad_df(flair = valid_raw$flair[[i]], ##flair volume of class nifti
                                t1 = valid_raw$t1[[i]], ##t1 volume of class nifti
                                t2 = NULL, ##t2 volume of class nifti
@@ -113,24 +113,28 @@ for(i in 1:length(valid_id)){
                                verbose = TRUE
   )
 }
-save(valid_list, file = file.path('df/valid_df.rda'))
+save(valid_list, file = file.path('valid_df.rda'))
 
+##################################
+##model part
 # load df
-load('df/train_df.rda')
-load('df/valid_df.rda')
-load('df/test_df.rda')
+load('train_df.rda')
+load('valid_df.rda')
+load('test_df.rda')
 
-model_res <- oasisad_model(train_df = train_df,
-                           test_df = test_df,
-                           valid_df = valid_df,
+###run model, this function will train the model with training and validation data
+##apply the trained model to test data
+model_res <- oasisad_model(train_df = train_list,
+                           test_df = test_list,
+                           valid_df = valid_list,
                            M1 = TRUE,
                            refine = TRUE,
                            neighbor = TRUE,
                            wm_label = NULL,
                            re_value = NULL)
 
-#evaluate
+#evaluate models' performance on test data
 preds <- model_res$probs[[1]] > model_res$cutoff
 eva <- oasisad_eva(pred = preds,
-                   truth = test_df[[1]]$data$GoldStandard)
+                   truth = test_list[[1]]$data$GoldStandard)
 eva
