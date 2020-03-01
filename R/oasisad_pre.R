@@ -14,7 +14,7 @@
 #' @return preprocessed image data
 #' @export
 #' @importFrom parallel mclapply
-#' @importFrom fslr flirt fast
+#' @importFrom fslr flirt fast fslbet
 #' @importFrom neurobase mask_img datatyper check_nifti
 
 oasisad_pre <- function(flair, #flair volume of class nifti
@@ -54,8 +54,7 @@ oasisad_pre <- function(flair, #flair volume of class nifti
     message("Running Brain Extraction Tool\n")
   }
   if (is.null(brain_mask)) {
-      brain_mask <- fslbet_rob(img_space, remove.nect = T, correct = T,
-                               correction = 'N4', recog = T, retimg = TRUE, verbose = F)
+      brain_mask <- fslbet(img_space, retimg = TRUE)
   }
 
   #fast segmention by FSL

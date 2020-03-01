@@ -24,6 +24,13 @@ test_raw$t1[[1]] <- readnii('test1_t1.nii.gz')
 test_raw$gs[[1]] <- readnii('test1_gs.nii.gz')
 
 
+#####################
+#OASISAD support N3 bias correction using fslr.
+#If you need N4 bias correction, please use fslbet_robust function in extrantsr package,
+#and input to brain_mask argument
+#####################
+
+
 # training sample dataframe list
 train_list <- list()
 for(i in 1:length(train_raw)){
