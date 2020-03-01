@@ -22,6 +22,9 @@
 #' @param wm_label White matter label in segmentation input
 #' @param re_value A numeric value will be used in neighor refinement functoin to
 #' refine a voxel's probability of being White matter hyperintensity
+#' @return OASISAD model results
+#' @export
+#' @importFrom stats glm family predict binomial
 
 oasisad_model <- function(train_df,
                           test_df,
@@ -67,6 +70,7 @@ oasisad_model <- function(train_df,
       model <- glm(GoldStandard ~ flair+t1, family=binomial, data=train)
     }
 
+    # if there is validation data, optimal threshold will be calculated
     if(!is.null(valid_df)){
       # the default cutoff_list is seq(0,1,0.01)
       probs <- predict(model, valid, type = "response")
@@ -78,187 +82,51 @@ oasisad_model <- function(train_df,
           indx <- sub$data$indx
           indx3d <- sub$data[c("axial", "coronal", "sagittal")]
         }
-        probs <- oasis_refine()
+        probs <- oasis_refine(probs,
+                              neighbor = neighbor,
+                              seg = seg_mask,
+                              wm = wm_mask,
+                              wm_label = NULL,
+                              re_value = NULL,
+                              indx = indx,
+                              indx3d = indx3d)
       }
-      opt_thre <- opt_thre(train_sub,
-                           cutoff_list,
-                           mydata_train,
-                           brain_mask,
-                           dir_seg,
-                           terry = F)
+      #gold standard
+      for(i in 1:length(valid_df)){
+        if(i == 1){
+          gs <- valid_df[[i]]$data$GoldStandard
+        } else {
+          gs <- rbind(gs, valid_df[[i]]$data$GoldStandard)
+        }
+      }
+      #optimal threshold will use DSC(F1-score) as metric
+      cutoff <- seq(0,1,0.01)
+      opt_cut <- opt_thre(probs,gs=gs, cutoff)
     }
 
-
-    #different probability map
-    probsr = probs^test$wm.correct
-    probss = smoo(probs,brain_mask,idx.use)
-    probsrs = smoo(probsr,brain_mask,idx.use)
-    probssr = probss^test$wm.correct
-    prob = list(probs = probs, probsr = probsr,
-                probss = probss, probsrs = probsrs, probssr = probssr)
-
-    ##save all probs
-    save(prob,file = file.path(subout,paste0(sub,'_', outname,'_prob.RData')))
-
-    # ##put in test dataset
-    # test$probs = probs
-    # test$probsr = probsr
-    # test$probss = probss
-    # test$probsrs = probsrs
-    # test$probssr = probssr
-    # ##gold standard
-    # actuals = test$GoldStandard
-    ##if mingjie is true
-    if(is.mingjie){
-      ##transform to binary mask, mingjie
-      minjie <- mingjie > 0
-      # confusion.matrix = table(actuals, mingjie) ## confusion matrix
-      # print(confusion.matrix)
-      # metric.mingjie = round(metric(confusion.matrix, n.obs),4)
-      save(minjie,file=file.path(subout,paste0(sub,'_minjie_seg.RData')))
+  ## Apply to test data
+  probs_list <- list()
+  for(i in 1:length(test_df)){
+    probs <- predict(model, test, type = "response")
+    if(refine){
+    sub <- test_df[[i]]
+    wm_mask <- sub$wm_mask
+    seg_mask <- sub$seg_mask
+    indx <- sub$data$indx
+    indx3d <- sub$data[c("axial", "coronal", "sagittal")]
+    probs <- oasis_refine(probs,
+                          neighbor = neighbor,
+                          seg = seg_mask,
+                          wm = wm_mask,
+                          wm_label = NULL,
+                          re_value = NULL,
+                          indx = indx,
+                          indx3d = indx3d)
     }
-    # if(auc){
-    #   ## calculate auc value
-    #   auc = pROC::auc(actuals,probs)
-    #   aucr = pROC::auc(actuals,probsr)
-    #   aucs = pROC::auc(actuals,probss)
-    #   aucrs = pROC::auc(actuals,probsrs)
-    #   aucsr = pROC::auc(actuals,probssr)
-    #   ## plot ROC
-    #   perf = list()
-    #   for(i in 1:length(prob)){
-    #     pred = prediction(prob[[i]],actuals)
-    #     perf[[i]] = performance(pred, "tpr","fpr")
-    #   }
-    #   perf[[length(prob)+1]] = c(auc,aucr,aucs,aucrs,aucsr)
-    # }
-    #cutoff start from here, loop over cutoff
-    # for(i in seq(length(cutoff_list))){
-    #   #current cutoff
-    #   cutoff = cutoff_list[i]
-    #   predssr = floor(probssr + (1-cutoff))
-    #   predsrs = floor(probsrs + (1-cutoff))
-    #   predss = floor(probss + (1-cutoff))
-    #   predsr = floor(probsr + (1-cutoff))
-    #   preds = floor(probs + (1-cutoff)) ## classified binary values
-    #
-    #   #CONFUSION
-    #   confusion.matrix = table(actuals, preds) ## confusion matrix
-    #   sprintf("Cutoff = %f", cutoff)
-    #   print(confusion.matrix)
-    #   if(auc) metric.n = c(metric(confusion.matrix, n.obs), auc) else
-    #     metric.n = metric(confusion.matrix, n.obs)
-    #
-    #   confusion.matrix = table(actuals, predsr) ## confusion matrix
-    #   print(confusion.matrix)
-    #   if(auc) metric.r = c(metric(confusion.matrix, n.obs), aucr) else
-    #     metric.r = metric(confusion.matrix, n.obs)
-    #
-    #   confusion.matrix = table(actuals, predss) ## confusion matrix
-    #   print(confusion.matrix)
-    #   if(auc) metric.s = c(metric(confusion.matrix, n.obs), aucs) else
-    #     metric.s = metric(confusion.matrix, n.obs)
-    #
-    #   confusion.matrix = table(actuals, predsrs) ## confusion matrix
-    #   print(confusion.matrix)
-    #   if(auc) metric.rs = c(metric(confusion.matrix, n.obs), aucrs) else
-    #     metric.rs = metric(confusion.matrix, n.obs)
-    #
-    #   confusion.matrix = table(actuals, predssr) ## confusion matrix
-    #   print(confusion.matrix)
-    #   if(auc) metric.sr = c(metric(confusion.matrix, n.obs), aucsr) else
-    #     metric.sr = metric(confusion.matrix, n.obs)
-    #
-    #   ##save metric
-    #   metric_bind = rbind(metric.n, metric.r, metric.s, metric.rs, metric.sr)
-    #   if(auc) colnames(metric_bind)[5] = "AUC"
-    #
-    #   ##for loop write mask
-    #   mask_list = list(preds,predsr,predss,predsrs,predssr)
-    #   for(j in seq(length(mask_list))){
-    #     pred = mask_list[[j]]
-    #     ##output mask
-    #     mask_out <- niftiarr(seg.voxel, 0)
-    #     mask_out[test$idx.use[pred==1]] = 1
-    #     writenii(mask_out,file.path(subout,outname,paste0(sub,'_', outname,'_', cutoff)))
-    #   }
-    #
-    #   #save metric of each cutoff to metric list
-    #   metric_list[[i]] <- round(metric_bind,4)
-    #   }
+    probs_list[[i]] <- probs
   }
-  if(oasis){
-    ##idx
-    idx.use = test$idx.use
-    n.obs = nrow(test) # no. of observations in train
-    probs = predict(model, newdata=test, type="response")
-    save(probs,file = file.path(subout,paste0(sub,'_', outname,'_probs.RData')))
-    # ##confusion
-    # actuals = test$GoldStandard
-    # ## calculate auc value
-    # if(auc){
-    #   perf = list()
-    #   auc = pROC::auc(actuals,probs)
-    #   pred = prediction(probs,actuals)
-    #   perf = performance(pred, "tpr","fpr")
-    # }
-    # for(i in seq(length(cutoff_list))){
-    #   cutoff = cutoff_list[i]
-    #   preds = floor(probs + (1-cutoff)) ## classified binary values
-    #   confusion.matrix = table(actuals, preds) ## confusion matrix
-    #   print(confusion.matrix)
-    #   metric_o = c(metric(confusion.matrix, n.obs), auc)
-    #   names(metric_o)[5] = 'AUC'
-    #
-    #   #write mask
-    #   mask_out <- niftiarr(seg.voxel, 0)
-    #   mask_out[as.numeric(test$idx.use[preds==1])] <- 1
-    #   writenii(mask_out, file.path(subout,outname,paste0(sub,'_', outname,'_',cutoff)))
-    #
-    #   #save metric of each cutoff to metric list
-    #   metric_list[[i]] <- round(metric_o,4)
-    # }
-  }
-  if(mimosa){
-    ##idx, for mimosa, fill overlap to our chosen voxels list
-    idx = test$idx
-    test_data = test$data
-    n.obs = length(idx) # no. of observations we will use
-    probs = predict(model, newdata = test_data, type = 'response')
-    #save(probs,file = file.path(subout,paste0(sub,'_', outname,'_probs.RData')))
-    ##gold
-    actuals = test$gold
-    ## calculate auc value
-    ##probs and actual use for auc
-    probs_use = probs[test_data$idx.use %in% idx]
-    probs_full = rep(0,n.obs)
-    probs_full[idx %in% test_data$idx.use] =  probs_use
-    save(probs_full,file = file.path(subout,paste0(sub,'_', outname,'_probs.RData')))
-    #   perf = list()
-    #   auc = pROC::auc(actuals,probs_full)
-    #   pred = prediction(probs_full,actuals)
-    #   perf = performance(pred, "tpr","fpr")
-    # for(i in seq(length(cutoff_list))){
-    #     cutoff = cutoff_list[i]
-    #     ##create preds as 0 vector fill with overlap voxels
-    #     preds_mimosa = floor(probs_use + (1-cutoff)) ## classified binary values
-    #     preds = rep(0,length(idx))
-    #     preds[idx %in% test_data$idx.use] = preds_mimosa
-    #     #confusion
-    #     confusion.matrix = table(actuals, preds) ## confusion matrix
-    #     print(confusion.matrix)
-    #     metric_m = c(metric(confusion.matrix, n.obs), auc)
-    #     names(metric_m)[5] = 'AUC'
-    #
-    #     #write mask
-    #     mask_out <- niftiarr(brain_mask, 0)
-    #     mask_out[as.numeric(idx[preds==1])] <- 1
-    #     writenii(mask_out, file.path(subout,outname,paste0(sub,'_', outname,'_',cutoff)))
-    #
-    #     #save metric of each cutoff to metric list
-    #     metric_list[[i]] <- round(metric_m,4)
-    # }
-  }
-  # save(metric_list, file = file.path(subout,outname,paste0(sub,'_', outname,'_metric.RData')))
-  # return(metric_list)
+  L <- list(coef = model$coefficients,
+            cutoff = opt_cut,
+            probs = probs_list
+            )
 }

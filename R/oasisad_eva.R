@@ -4,11 +4,13 @@
 #' @param truth a vector includes true labels. Please check labels' names in pred and truth are same.
 #' @param pos_l a value indicates the positive label. If \emph{NULL}, default will set last value from \emph{table} function as positive label.
 #' @return a table includes evaluation metrics.
+#' @export
 
 oasisad_eva <- function(pred,
                        truth,
-                       probs,
                        pos_l = NULL){
+  #number of subject
+  n.obs <- length(pred)
 
   if(!is.null(pos_l)){
     truth <- truth == pos_l

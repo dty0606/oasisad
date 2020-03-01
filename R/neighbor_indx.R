@@ -1,3 +1,10 @@
+#' @title OASISAD calculates neighbor indices function
+#' @description Input voxel's index information to calculate its neighbor indices
+#' @param x Voxel's 3D indices
+#' @param dim Dimension of 3D image
+#' @return Refined probability map
+#' @export
+
 neighbor_indx <- function(x,
                           dim){
   #grid

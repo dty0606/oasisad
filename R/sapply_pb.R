@@ -1,10 +1,11 @@
-#' Add process bar to sapply.
-#'
+#' @title OASISAD sapply with processing bar
+#' @description Add process bar to sapply.
 #' @param X same argument in sapply.
 #' @param FUN same argument in sapply.
+#' @param ... Arguments for FUN
 #' @return results same as sapply
-#' @examples
-#' sapply_pb(1:10, function(i) i)
+#' @export
+#' @importFrom utils txtProgressBar setTxtProgressBar
 
 
 #sapply function with processing bar

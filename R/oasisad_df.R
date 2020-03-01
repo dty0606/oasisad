@@ -5,19 +5,18 @@
 #' @param t2 Input T2 image
 #' @param pd Input PD image
 #' @param gold_standard gold standard lesion segmentation mask of class
-#' \code{\link{nifti}}
-#' #' @param preproc A boolean indicates whether to call
-#' \code{\link{oasisad_pre}} function or not
-#' and performs the necessary preprocessing steps for OASIS
+#' \code{nifti}
+#' @param preproc A boolean indicates whether to call
+#' \code{oasisad_pre} function or not
 #' @param brain_mask Input brain_mask, if null, a mask will be obtained by FSL
 #' @param img_space An image to register, if NULL, 'flair' image will be used in registration.
 #' @param neighbor A boolean indicates whether will use neighbor refinement function in model step.
 #' If true, either prepare segmentation and white matter mask to input in this function or
-#' this functoin will generate masks by \code{\link{fslr}}
+#' this functoin will generate masks by \code{fslr}
 #' @param wm_mask Input of white matter mask
 #' @param seg_mask Input of segmentation mask
 #' @param dir A user defined output path for fslr segmentation
-#' @param eroder A boolean indicates whether should use \code{\link{fslerode}}
+#' @param eroder A boolean indicates whether should use \code{fslerode}
 #' @param voxel_select A specifed level to remove voxels whose intensity under
 #' @param normalize A boolean indicates whether to
 #' perform z-score normalization of the image over the brain mask,
@@ -33,6 +32,12 @@
 #' the preprocessed images should be returned
 #' @param cores numeric indicating the number of cores to be used
 #' @param verbose A boolean indicated whether output messages
+#' @return OASISAS data structure
+#' @export
+#' @importFrom neurobase check_nifti zscore_img readnii
+#' @import fslr
+#' @importFrom oasis voxel_selection
+#' @importFrom parallel mclapply
 
 oasisad_df <- function(flair, ##flair volume of class nifti
                         t1, ##t1 volume of class nifti
@@ -52,7 +57,7 @@ oasisad_df <- function(flair, ##flair volume of class nifti
                         image_sm = TRUE, ## option to smooth image
                         slices = NULL, #slice vector
                         orientation = c("axial", "coronal", "sagittal"),
-                        return_preproc = FALSE,
+                        return_pre = FALSE,
                         cores = 1,
                         verbose = TRUE
 )
@@ -127,10 +132,10 @@ oasisad_df <- function(flair, ##flair volume of class nifti
 
   # removing voxels below a certain quantile if needed
   if(!is.null(voxel_select)){
-    top_voxels <- voxel_selection(flair = oasis_study$flair,
+    top_voxels <- voxel_selection(flair = oasisad_study$flair,
                                   brain_mask = brain_mask,
                                   cutoff = voxel_select)
-    oasis_studyad$top_voxels <- top_voxels
+    oasisad_study$top_voxels <- top_voxels
     rm(top_voxels)
   }
 
@@ -174,7 +179,7 @@ oasisad_df <- function(flair, ##flair volume of class nifti
 
   }
 
-  # check gold_standard and attach to oasis_study dataframe
+  # check gold_standard and attach to oasisad_study dataframe
   gold_standard <- check_nifti2(gold_standard)
   oasisad_study$GoldStandard <- gold_standard
 

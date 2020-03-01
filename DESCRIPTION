@@ -1,6 +1,6 @@
 Package: oasisad
 Title: OASISAD, an improved automated white matter hypyter-intensity classficiation tool
-Version: 0.0.0.9000
+Version: 0.1
 Authors@R: 
     person(given = "Tianyu",
            family = "Ding",
@@ -11,11 +11,10 @@ Description: The package includes following functions:
     2. OASISAD basic models.
     3. Probabilty map refined functions. 
     4. Segmentation evaulation metric includes F1-score, accuracy, ROC and etc.
-Depends: R(>=3.1.0)
+Depends: R (>= 3.1.0)
 Imports: 
     neurobase,
     fslr,
-    extrantsr,
     ANTsR,
     parallel,
     oasis,
@@ -24,3 +23,4 @@ Imports:
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 7.0.2

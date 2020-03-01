@@ -1,3 +1,13 @@
+#' @title OASISAD calculates neighbor function
+#' @description Input voxel's neigbhors' information to calculate refinement parameter
+#' @param wm_pve A voxel's probability of being white matter
+#' @param nei_seg Segmentation information of its neighbors
+#' @param nei_wm White matter probability information of its neighbors
+#' @param label White matter's label in segmentation mask
+#' @param re_value User defined value to refine WMH probability
+#' @return Refined probability map
+#' @export
+
 neighbor_cal <- function(wm_pve,
                          nei_seg,
                          nei_wm,
