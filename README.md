@@ -7,8 +7,11 @@ Ding, T., et al. "An improved algorithm of white matter hyperintensity detection
 
 # Notes
 1. Please install fsl before using this package.
-2. In oasisad_testcode.R script, a brief guide to use 'oasisad' package is written.
-3. If you have any question regarding this package, feel free to send email to tid16atpittdotedu
+2. 'oasisad' needs to be run under Linux/Unix system. If you are using windows, please find solution here:
+[https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation/Windows].
+3. In oasisad_testcode.R script, a brief guide to use 'oasisad' package is written.
+4. If you have any question regarding this package, feel free to send email to tid16atpittdotedu
+
 
 # Installation
 ```r
