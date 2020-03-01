@@ -36,23 +36,24 @@ bias_correct_ants(
 \item{retimg}{(logical) return image of class nifti}
 
 \item{reorient}{(logical) If retimg, should file be reoriented when read in?
-Passed to \code{readnii}.}
+Passed to \code{{readnii}}.}
 
 \item{shrinkfactor}{Shrink factor passed to
-\code{n3BiasFieldCorrection}}
+\code{{n3BiasFieldCorrection}}}
 
-\item{mask}{Mask to pass to \code{n4BiasFieldCorrection}}
+\item{mask}{Mask to pass to \code{{n4BiasFieldCorrection}}}
 
 \item{verbose}{print diagnostic output.}
 
 \item{...}{additional arguments passed to
-\code{n3BiasFieldCorrection} or
- \code{n4BiasFieldCorrection}}
+\code{{n3BiasFieldCorrection}} or
+ \code{{n4BiasFieldCorrection}}}
 }
 \value{
 If \code{retimg} then object of class nifti.  Otherwise,
 Result from system command, depends if intern is TRUE or FALSE.
 }
 \description{
-This function call bias_correc from extrantsr
+This function wraps ANTsR bias field corrections and returns
+nifti objects
 }

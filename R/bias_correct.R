@@ -1,18 +1,19 @@
 #' @title N3 or N4 Correct
-#' @description This function call bias_correc from extrantsr
+#' @description This function wraps ANTsR bias field corrections and returns
+#' nifti objects
 #' @param file (character) image to be manipulated
 #' @param correction (character) N3 or N4 correction?
 #' @param outfile (character) resultant image name (optional)
 #' @param retimg (logical) return image of class nifti
 #' @param reorient (logical) If retimg, should file be reoriented when read in?
-#' Passed to \code{readnii}.
+#' Passed to \code{{readnii}}.
 #' @param shrinkfactor Shrink factor passed to
-#' \code{n3BiasFieldCorrection}
-#' @param mask Mask to pass to \code{n4BiasFieldCorrection}
+#' \code{{n3BiasFieldCorrection}}
+#' @param mask Mask to pass to \code{{n4BiasFieldCorrection}}
 #' @param verbose print diagnostic output.
 #' @param ... additional arguments passed to
-#' \code{n3BiasFieldCorrection} or
-#'  \code{n4BiasFieldCorrection}
+#' \code{{n3BiasFieldCorrection}} or
+#'  \code{{n4BiasFieldCorrection}}
 #' @return If \code{retimg} then object of class nifti.  Otherwise,
 #' Result from system command, depends if intern is TRUE or FALSE.
 #' @export

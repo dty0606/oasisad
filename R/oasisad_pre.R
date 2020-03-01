@@ -54,8 +54,8 @@ oasisad_pre <- function(flair, #flair volume of class nifti
     message("Running Brain Extraction Tool\n")
   }
   if (is.null(brain_mask)) {
-      brain_mask <- bias_correct(img_space, correction = 'N4', retimg = TRUE,
-                                 verbose = verbose)
+      brain_mask <- fslbet_rob(img_space, remove.nect = T, correct = T,
+                               correction = 'N4', recog = T, retimg = TRUE, verbose = F)
   }
 
   #fast segmention by FSL
