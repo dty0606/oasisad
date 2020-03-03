@@ -1,3 +1,6 @@
 ^oasisad\.Rproj$
 ^\.Rproj\.user$
 ^oasisad_testcode.R$
+^\.travis\.yml$
+^README\.Rmd$
+^appveyor\.yml$
