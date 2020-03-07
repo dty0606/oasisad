@@ -1,0 +1,26 @@
+Package: oasisad
+Title: 'OASISAD' an Improved Automated White Matter Hyper-intensity 
+    Classficiation Tool
+Version: 0.1
+Authors@R: 
+    person(given = "Tianyu",
+           family = "Ding",
+           role = c("aut", "cre"),
+           email = "dty0606@gmail.com")
+Description: The package includes following functions: 
+    1. Preprocess raw input strutural neuroimages including registration, skull registration and ect by fslr function. 
+    2. OASISAD basic models.
+    3. Probabilty map refined functions. 
+    4. Segmentation evaluation metric includes F1-score, accuracy, ROC and etc.
+Depends: R (>= 3.1.0)
+Imports: neurobase,
+         fslr,
+         oro.nifti, 
+         parallel,
+         oasis,
+         stats,
+         utils
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2

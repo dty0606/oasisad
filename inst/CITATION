@@ -1,0 +1,20 @@
+structure(list(ding2020improved = structure(list(title = "An improved algorithm of white matter hyperintensity detection in elderly adults", 
+                                                 author = structure(list(list(given = "T", family = "Ding", 
+                                                                              role = NULL, email = NULL, comment = NULL), list(given = "AD", 
+                                                                                                                               family = "Cohen", role = NULL, email = NULL, comment = NULL), 
+                                                                         list(given = "EE", family = "O’Connor", role = NULL, 
+                                                                              email = NULL, comment = NULL), list(given = "HT", 
+                                                                                                                  family = "Karim", role = NULL, email = NULL, comment = NULL), 
+                                                                         list(given = "A", family = "Crainiceanu", role = NULL, 
+                                                                              email = NULL, comment = NULL), list(given = "J", 
+                                                                                                                  family = "Muschelli", role = NULL, email = NULL, 
+                                                                                                                  comment = NULL), list(given = "O", family = "Lopez", 
+                                                                                                                                        role = NULL, email = NULL, comment = NULL), list(
+                                                                                                                                          given = "WE", family = "Klunk", role = NULL, email = NULL, 
+                                                                                                                                          comment = NULL), list(given = "HJ", family = "Aizenstein", 
+                                                                                                                                                                role = NULL, email = NULL, comment = NULL), list(
+                                                                                                                                                                  given = "R", family = "Krafty", role = NULL, email = NULL, 
+                                                                                                                                                                  comment = NULL), list(given = NULL, family = "others", 
+                                                                                                                                                                                        role = NULL, email = NULL, comment = NULL)), class = "person"), 
+                                                 journal = "NeuroImage: Clinical", volume = "25", pages = "102151", 
+                                                 year = "2020", publisher = "Elsevier"), bibtype = "Article", key = "ding2020improved")), class = "bibentry", strings = structure(character(0), .Names = character(0)))
